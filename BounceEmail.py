@@ -8,7 +8,7 @@ import re
 class BounceEmail ():
 
     def  __init__ (self, email_string):
-        self.__message = email.message_from_string(email_string)
+        self.message = email.message_from_string(email_string)
         self.__payload = None
         self.__reject_type = None
         self.debug = False
@@ -16,9 +16,9 @@ class BounceEmail ():
     def __find_delivery_status(self):
         is_status = False
 
-        if self.__message.is_multipart():
+        if self.message.is_multipart():
            #Walking Recursively to search header Diagnostic-Code
-            for part in self.__message.walk():
+            for part in self.message.walk():
                 if part.get_content_type() == 'message/delivery-status':
                     for epart in part.walk():
                         if epart['Diagnostic-Code'] is not None:
@@ -26,7 +26,7 @@ class BounceEmail ():
                             result = re.sub('\s{2,}', ' ', epart['Diagnostic-Code'])
 
         if not is_status:
-            result = self.__message.as_string()
+            result = self.message.as_string()
 
         return result
 
@@ -68,8 +68,8 @@ class BounceEmailITBCC (BounceEmail):
         valid_xoriginalto1 = 'vbounce@karir\.itb\.ac\.id'
         valid_xoriginalto2 = '^noreply-\d+-\d+-(.+=.+)?@karir\.itb\.ac\.id$'
 
-        mygroup1 = re.match(valid_xoriginalto1, message['X-Original-To'])
-        mygroup2 = re.match(valid_xoriginalto2, message['X-Original-To'])
+        mygroup1 = re.match(valid_xoriginalto1, self.message['X-Original-To'])
+        mygroup2 = re.match(valid_xoriginalto2, self.message['X-Original-To'])
 
         if  mygroup1 is not None:
             origin = 'vbounce' #will add additional parser later
@@ -87,7 +87,7 @@ args = parser.parse_args()
 mbox = mailbox.mbox(args.input)
 print(args.input)
 for message in mbox:
-    firstbounce = BounceEmail(message.__str__())
+    firstbounce = BounceEmailITBCC(message.__str__())
     #firstbounce.debug = True
     firstbounce.parse()
     reason = firstbounce.get_reason()
