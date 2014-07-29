@@ -85,14 +85,16 @@ parser.add_argument('-i','--input', help='Input mbox file name',required=True)
 args = parser.parse_args()
 
 mbox = mailbox.mbox(args.input)
-print(args.input)
+
 for message in mbox:
     firstbounce = BounceEmailITBCC(message.__str__())
-    #firstbounce.debug = True
+
     firstbounce.parse()
     reason = firstbounce.get_reason()
+
     try:
         firstbounce.get_reason().encode('ascii')
     except UnicodeEncodeError:
         reason = firstbounce.get_reason().encode('ascii', 'ignore').decode()
-    print('Reject Type: {0}; Reason: "{1}"'.format(firstbounce.get_type(), reason))
+
+    print('Email: {2}; Reject Type: {0}; Reason: "{1}"'.format(firstbounce.get_type(), reason, firstbounce.get_problematic_sender()))
