@@ -90,9 +90,9 @@ for message in mbox:
     firstbounce = BounceEmail(message.__str__())
     #firstbounce.debug = True
     firstbounce.parse()
+    reason = firstbounce.get_reason()
     try:
-        reason = firstbounce.get_reason().encode('ascii')
-#        print('Reject Type: {0}; Reason: "{1}"'.format(firstbounce.get_type(), firstbounce.get_reason()))
+        firstbounce.get_reason().encode('ascii')
     except UnicodeEncodeError:
         reason = firstbounce.get_reason().encode('ascii', 'ignore').decode()
     print('Reject Type: {0}; Reason: "{1}"'.format(firstbounce.get_type(), reason))
